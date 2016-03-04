@@ -44,9 +44,9 @@ uint16_t make_vgaentry(char c, uint8_t color) {
 	return c16 | color16 << 8;
 }
  
-size_t strlen(const char* str) {
+size_t strnlen(const char* str, const unsigned int max) {
 	size_t ret = 0;
-	while ( str[ret] != 0 )
+	while ( ret < max && str[ret] != 0 )
 		ret++;
 	return ret;
 }
@@ -92,7 +92,7 @@ void terminal_putchar(char c) {
 }
  
 void terminal_writestring(const char* data) {
-	size_t datalen = strlen(data);
+	size_t datalen = strnlen(data, VGA_WIDTH * VGA_HEIGHT);
 	for (size_t i = 0; i < datalen; i++)
 		terminal_putchar(data[i]);
 }
