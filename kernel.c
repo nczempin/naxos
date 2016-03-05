@@ -93,8 +93,19 @@ void terminal_putchar(char c) {
  
 void terminal_writestring(const char* data) {
 	size_t datalen = strnlen(data, VGA_WIDTH * VGA_HEIGHT);
-	for (size_t i = 0; i < datalen; i++)
-		terminal_putchar(data[i]);
+	for (size_t i = 0; i < datalen; i++) {
+		char character = data[i];
+		switch (character){
+		case '\n':
+			//TODO: check reaching the bottom
+			++terminal_row;
+      terminal_column = 0;
+			break;
+		default:
+			terminal_putchar(character);
+			break;
+		}
+  }
 }
  
 #if defined(__cplusplus)
@@ -108,5 +119,5 @@ void kernel_main() {
          * yet, '\n' will produce some VGA specific character instead.
          * This is normal.
          */
-	terminal_writestring("Hello, kernel World!\n");
+	terminal_writestring("Hello, kernel World!\nLine 2.\n");
 }
