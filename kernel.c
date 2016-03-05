@@ -120,4 +120,7 @@ void kernel_main() {
          * This is normal.
          */
 	terminal_writestring("Hello, kernel World!\nLine 2.\n");
+	for (size_t i = 0; i < VGA_HEIGHT; ++i) {
+		terminal_writestring("Another line.\n");
+	}
 }
