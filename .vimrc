@@ -2,7 +2,9 @@ set tabstop=2
 set softtabstop=2
 set shiftwidth=2
 set noexpandtab
-set colorcolumn=110
+set colorcolumn=81
+set autoindent
+set cindent
 set textwidth=80
 highlight ColorColumn ctermbg=blue  ctermfg=237 guibg=#990000
 highlight OverLength ctermbg=red ctermfg=green guibg=#592929
