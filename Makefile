@@ -10,7 +10,6 @@ compile:
 -Wextra
 	i686-elf-gcc -c terminal.c -o terminal.o -std=gnu99 -ffreestanding -O2 \
 -Wextra 
-	i686-elf-gcc -c vga.c -o vga.o -std=gnu99 -ffreestanding -O2 \
-																								-Wextra
+	i686-elf-gcc -c vga.c -o vga.o -std=gnu99 -ffreestanding -O2 -Wextra
 assemble:
 	i686-elf-as boot.s -o boot.o
