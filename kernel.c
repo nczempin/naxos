@@ -6,7 +6,7 @@
  
 /* Check if the compiler thinks we are targeting the wrong operating system. */
 #if defined(__linux__)
-#error "You are not using a cross-compiler, you will most certainly run into trouble"
+#error "Wrong compiler."
 #endif
  
 /* This tutorial will only work for the 32-bit ix86 targets. */
@@ -83,9 +83,9 @@ void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) {
  
 void terminal_putchar(char c) {
 	terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
-	if (++terminal_column == VGA_WIDTH) {
+	if (++terminal_column >= VGA_WIDTH) {
 		terminal_column = 0;
-		if (++terminal_row == VGA_HEIGHT) {
+		if (++terminal_row >= VGA_HEIGHT) {
 			terminal_row = 0;
 		}
 	}
@@ -97,8 +97,9 @@ void terminal_writestring(const char* data) {
 		char character = data[i];
 		switch (character){
 		case '\n':
-			//TODO: check reaching the bottom
-			++terminal_row;
+			if (++terminal_row >= VGA_HEIGHT){
+				terminal_row = 0;
+			}
       terminal_column = 0;
 			break;
 		default:
@@ -114,8 +115,9 @@ extern "C" /* Use C linkage for kernel_main. */
 void kernel_main() {
 	/* Initialize terminal interface */
 	terminal_initialize();
-	terminal_writestring("Hello, kernel World!\nLine 2.\n");
+	terminal_writestring("Hello, kernel World!\n");
 	for (size_t i = 0; i < VGA_HEIGHT; ++i) {
 		terminal_writestring("Another line.\n");
 	}
+	terminal_writestring("One more line.\n");
 }
