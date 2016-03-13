@@ -16,16 +16,31 @@
 
 #include "terminal.h"
 #include "vga.h"
+#include "sys.h"
+#include "keyboard.h"
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
-void kernel_main() {
-	/* Initialize terminal interface */
-	terminal_initialize();
-	terminal_writestring("Hello, kernel World!\n");
-	for (size_t i = 0; i < VGA_HEIGHT; ++i) {
-		terminal_writestring("Another line.\n");
-	}
-	terminal_writestring("One more line.\n");
+
+void kernel_main()
+{
+    terminal_initialize();
+    unsigned char c = 0;
+    unsigned char old_c;
+    while (1) {
+        old_c = c;
+        c = keyboard_getchar();
+        if (c == 1) { //ESC
+            break;
+        }
+        if (c!=old_c && c != 0 && c!=0xfa) {
+            terminal_putchar(c);
+        }
+    }
+    terminal_writestring("Hello, kernel World!\n");
+    for (size_t i = 0; i < VGA_HEIGHT; ++i) {
+        terminal_writestring("Another line.\n");
+    }
+    terminal_writestring("One more line.\n");
 }
