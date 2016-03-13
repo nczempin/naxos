@@ -71,6 +71,13 @@ void terminal_putchar(char c)
 				terminal_row = 0;
 			}
 			break;
+		case '\b':
+			if (terminal_column > 0){
+				--terminal_column;
+				terminal_putchar(' ');
+				--terminal_column;
+			}
+			break;
 		default:
 			terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
 			if (++terminal_column >= VGA_WIDTH) {

@@ -3,7 +3,7 @@
 
 //starting point for scan code table
 unsigned char scan[] =
-    "##1234567890-=##qwertzuiop[]\n#asdfghjkl;'`#\\yxcvbnm,./#*##############";
+    "##1234567890-=\b\tqwertzuiop[]\n#asdfghjkl;'`#\\yxcvbnm,./#*##############";
 
 unsigned char keyboard_get_scancode()
 {
