@@ -1,4 +1,6 @@
-CC=i686-elf-gcc
+CROSS_PREFIX ?= i686-elf-
+CC := $(CROSS_PREFIX)gcc
+AS := $(CROSS_PREFIX)as
 CFLAGS=-I.
 
 BIN=naxos.bin
@@ -17,7 +19,7 @@ $(BIN): $(OBJ)
 %.o: %.c
 	$(CC) -o $@ -c $^ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 $(GAS_OBJ): $(GAS)
-	i686-elf-as $^ -o $@
+	$(AS) $^ -o $@
 $(NASM_OBJ): $(NASM)
 	nasm -f elf32 $^ -o $@
 
