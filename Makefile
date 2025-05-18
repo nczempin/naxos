@@ -23,6 +23,12 @@ $(GAS_OBJ): $(GAS)
 $(NASM_OBJ): $(NASM)
 	nasm -f elf32 $^ -o $@
 
-.PHONY : clean
+.PHONY : clean run
 clean :
 	-rm -f $(BIN) $(OBJ)
+run: $(BIN)
+	if [ -x ./start-qemu.sh ]; then \
+		./start-qemu.sh; \
+	else \
+		qemu-system-i386 -cpu pentium3 --serial file:serial.log -kernel $(BIN); \
+	fi

@@ -11,3 +11,14 @@ invoking `make`:
 ```sh
 make CROSS_PREFIX=arm-none-eabi-
 ```
+
+## Running
+
+After building the kernel you can boot it in QEMU with:
+
+```sh
+make run
+```
+
+The `run` target will execute `start-qemu.sh` if it exists, or fall back to
+calling `qemu-system-i386` directly.
