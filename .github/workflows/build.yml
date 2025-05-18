@@ -43,6 +43,16 @@ jobs:
           PATH: ${{ env.COMPILER_PATH }}/bin:/usr/local/bin:/usr/bin:/bin
         run: make
 
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-i386
+
+      - name: Run kernel tests
+        env:
+          PATH: ${{ env.COMPILER_PATH }}/bin:/usr/local/bin:/usr/bin:/bin
+        run: ./test_kernel.sh
+
       - name: Upload kernel
         uses: actions/upload-artifact@v4
         with:
