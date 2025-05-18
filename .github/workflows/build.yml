@@ -24,6 +24,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential
           make --version || { echo "Make was not installed successfully"; exit 1; }
+
+      - name: Debug PATH and make
+        run: |
+          echo "PATH=$PATH"
+          which make
+          make --version
       - name: Restore cross compiler
         id: cross-cache
         uses: actions/cache@v3
@@ -33,7 +39,7 @@ jobs:
 
       - name: Build kernel
         env:
-          PATH: ${{ env.COMPILER_PATH }}/bin:${{ env.PATH }}
+          PATH: ${{ env.COMPILER_PATH }}/bin:/usr/local/bin:/usr/bin:/bin
         run: make
 
       - name: Upload kernel
