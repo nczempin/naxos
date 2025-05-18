@@ -31,7 +31,7 @@ jobs:
 
       - name: Build kernel
         env:
-          PATH: "${{ env.COMPILER_PATH }}/bin:${PATH}"
+          PATH: ${{ env.COMPILER_PATH }}/bin:${{ env.PATH }}
         run: make
 
       - name: Upload kernel
