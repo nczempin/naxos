@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GCC_VERSION: "14.1.0"
+      BINUTILS_VERSION: "2.44"
       COMPILER_PATH: ${{ needs.cross-compiler.outputs.compiler-path }}
     steps:
       - name: Checkout repository
@@ -26,7 +27,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.COMPILER_PATH }}
-          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}
+          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
 
       - name: Build kernel
         env:
