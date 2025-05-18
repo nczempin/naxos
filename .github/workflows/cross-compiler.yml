@@ -16,6 +16,7 @@ jobs:
       compiler-path: ${{ steps.set-path.outputs.compiler-path }}
     env:
       GCC_VERSION: "14.1.0"
+      BINUTILS_VERSION: "2.44"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -36,12 +37,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/vendor/cross
-          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-2.44
+          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
 
       - name: Build cross compiler
         if: steps.cross-cache.outputs.cache-hit != 'true'
         env:
-          BINUTILS_VERSION: "2.44"
+          BINUTILS_VERSION: "${{ env.BINUTILS_VERSION }}"
           GCC_VERSION: "${{ env.GCC_VERSION }}"
           PREFIX: "${{ github.workspace }}/vendor/cross"
           TARGET: "i686-elf"
