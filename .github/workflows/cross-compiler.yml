@@ -45,7 +45,9 @@ jobs:
           GCC_VERSION: "${{ env.GCC_VERSION }}"
           PREFIX: "${{ github.workspace }}/vendor/cross"
           TARGET: "i686-elf"
-        run: vendor/build_cross_compiler.sh
+        run: |
+          chmod +x vendor/build_cross_compiler.sh
+          vendor/build_cross_compiler.sh
 
       - name: Set compiler output path
         id: set-path
