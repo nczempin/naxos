@@ -48,6 +48,9 @@ The kernel and cross‑compiler are built automatically on GitHub Actions. The
 workflow in `.github/workflows/build.yml` triggers the `cross-compiler` job
 defined in `.github/workflows/cross-compiler.yml`.
 
+When the workflow runs for a tagged commit, the generated cross compiler is
+packaged and published as a GitHub release.
+
 The cross‑compiler workflow installs the build dependencies
 `build-essential`, `bison`, `flex`, `libgmp3-dev`, `libmpc-dev`, `libmpfr-dev`,
 `texinfo`, `wget`, and `coreutils`. It then builds an `i686-elf` toolchain using
