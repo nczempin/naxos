@@ -38,9 +38,9 @@ jobs:
           path: ${{ github.workspace }}/opt/cross
           key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-2.44
       
-        - name: Build binutils and gcc
-          if: steps.cross-cache.outputs.cache-hit != 'true'
-          env:
+      - name: Build binutils and gcc
+        if: steps.cross-cache.outputs.cache-hit != 'true'
+        env:
           BINUTILS_VERSION: "2.44"
           GCC_VERSION: "${{ env.GCC_VERSION }}"
           PREFIX: "${{ github.workspace }}/opt/cross"
@@ -72,6 +72,6 @@ jobs:
           make install-gcc
           make install-target-libgcc
 
-        - name: Set compiler output path
-          id: set-path
-          run: echo "compiler-path=${{ github.workspace }}/opt/cross" >> "$GITHUB_OUTPUT"
+      - name: Set compiler output path
+        id: set-path
+        run: echo "compiler-path=${{ github.workspace }}/opt/cross" >> "$GITHUB_OUTPUT"
