@@ -3,10 +3,17 @@ name: Build Cross Compiler
 on:
   push:
   pull_request:
+  workflow_call:
+    outputs:
+      compiler-path:
+        description: "Location of the built cross compiler"
+        value: ${{ jobs.build-cross-compiler.outputs.compiler-path }}
 
 jobs:
   build-cross-compiler:
     runs-on: ubuntu-latest
+    outputs:
+      compiler-path: ${{ steps.set-path.outputs.compiler-path }}
     env:
       GCC_VERSION: "14.1.0"
     steps:
@@ -31,9 +38,9 @@ jobs:
           path: ${{ github.workspace }}/opt/cross
           key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-2.44
       
-      - name: Build binutils and gcc
-        if: steps.cross-cache.outputs.cache-hit != 'true'
-        env:
+        - name: Build binutils and gcc
+          if: steps.cross-cache.outputs.cache-hit != 'true'
+          env:
           BINUTILS_VERSION: "2.44"
           GCC_VERSION: "${{ env.GCC_VERSION }}"
           PREFIX: "${{ github.workspace }}/opt/cross"
@@ -64,3 +71,7 @@ jobs:
           make -j$(nproc) all-target-libgcc
           make install-gcc
           make install-target-libgcc
+
+        - name: Set compiler output path
+          id: set-path
+          run: echo "compiler-path=${{ github.workspace }}/opt/cross" >> "$GITHUB_OUTPUT"
