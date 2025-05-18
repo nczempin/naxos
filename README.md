@@ -6,7 +6,8 @@ Just wanted to play with a shell of an x86 based operating system.
 
 This repository stores the prebuilt cross compiler using [Git LFS](https://git-lfs.com/).
 If you haven't enabled LFS, install it and run `git lfs pull` after cloning to
-retrieve the compiler binaries.
+retrieve the compiler binaries. The toolchain lives in `vendor/cross` and the
+`Makefile` will automatically use it when present.
 
 The `Makefile` assumes a cross compiler using the `i686-elf-` prefix. If your
 toolchain uses a different prefix, set the `CROSS_PREFIX` variable when
@@ -17,19 +18,13 @@ make CROSS_PREFIX=arm-none-eabi-
 ```
 
 If you don't already have an `i686-elf` toolchain installed you can build one
-with the provided script. The repository may also include a prebuilt toolchain
-under `vendor/cross` if Git LFS objects were fetched during checkout:
+with the provided script. The repository already contains a prebuilt toolchain
+under `vendor/cross` when the LFS objects are fetched:
 
 ```sh
 ./vendor/build_cross_compiler.sh
 ```
 
-When the script completes, add the compiler to your `PATH` so `make` can find
-it automatically:
-
-```sh
-export PATH="$PWD/vendor/cross/bin:$PATH"
-```
 
 ## Running
 
