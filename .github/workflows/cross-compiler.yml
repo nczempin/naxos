@@ -1,0 +1,55 @@
+name: Build Cross Compiler
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-cross-compiler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo wget
+
+      - name: Build binutils and gcc
+        env:
+          BINUTILS_VERSION: "2.44"
+          GCC_VERSION: "14.1.0"
+          PREFIX: "${{ github.workspace }}/opt/cross"
+          TARGET: "i686-elf"
+          PATH: "${{ github.workspace }}/opt/cross/bin:${PATH}"
+        run: |
+          set -e
+          mkdir -p $HOME/src
+          cd $HOME/src
+
+          wget https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
+          tar -xvzf binutils-$BINUTILS_VERSION.tar.gz
+          mkdir build-binutils
+          cd build-binutils
+          ../binutils-$BINUTILS_VERSION/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
+          make -j$(nproc)
+          make install
+
+          cd $HOME/src
+          wget https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
+          tar -xvzf gcc-$GCC_VERSION.tar.gz
+          cd gcc-$GCC_VERSION
+          ./contrib/download_prerequisites
+          mkdir ../build-gcc
+          cd ../build-gcc
+          ../gcc-$GCC_VERSION/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c --without-headers
+          make -j$(nproc) all-gcc
+          make -j$(nproc) all-target-libgcc
+          make install-gcc
+          make install-target-libgcc
+
+      - name: Verify cross compiler
+        run: |
+          ${{ github.workspace }}/opt/cross/bin/i686-elf-gcc --version
+
