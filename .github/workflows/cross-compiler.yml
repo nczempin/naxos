@@ -54,7 +54,6 @@ jobs:
           key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
 
       - name: Build cross compiler
-        if: steps.cross-lfs.outputs.found != 'true' && steps.cross-cache.outputs.cache-hit != 'true'
         env:
           BINUTILS_VERSION: "${{ env.BINUTILS_VERSION }}"
           GCC_VERSION: "${{ env.GCC_VERSION }}"
