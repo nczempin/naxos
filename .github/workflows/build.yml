@@ -1,0 +1,32 @@
+name: Build Kernel
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GCC_VERSION: "14.1.0"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Restore cross compiler
+        id: cross-cache
+        uses: actions/cache@v3
+        with:
+          path: opt/cross
+          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}
+
+      - name: Build kernel
+        env:
+          PATH: "${{ github.workspace }}/opt/cross/bin:${PATH}"
+        run: make
+
+      - name: Upload kernel
+        uses: actions/upload-artifact@v3
+        with:
+          name: naxos-bin
+          path: naxos.bin
