@@ -1,4 +1,8 @@
+ifeq ($(wildcard vendor/cross/bin/i686-elf-gcc),)
 CROSS_PREFIX ?= i686-elf-
+else
+CROSS_PREFIX ?= vendor/cross/bin/i686-elf-
+endif
 CC := $(CROSS_PREFIX)gcc
 AS := $(CROSS_PREFIX)as
 CFLAGS=-I.

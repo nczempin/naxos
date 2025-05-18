@@ -35,43 +35,18 @@ jobs:
         id: cross-cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/opt/cross
+          path: ${{ github.workspace }}/vendor/cross
           key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-2.44
 
-      - name: Build binutils and gcc
+      - name: Build cross compiler
         if: steps.cross-cache.outputs.cache-hit != 'true'
         env:
           BINUTILS_VERSION: "2.44"
           GCC_VERSION: "${{ env.GCC_VERSION }}"
-          PREFIX: "${{ github.workspace }}/opt/cross"
+          PREFIX: "${{ github.workspace }}/vendor/cross"
           TARGET: "i686-elf"
-          PATH: "/usr/bin:/bin:${{ github.workspace }}/opt/cross/bin:${PATH}"
-        run: |
-          set -e
-          mkdir -p $HOME/src
-          cd $HOME/src
-
-          wget https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
-          tar -xvzf binutils-$BINUTILS_VERSION.tar.gz
-          mkdir build-binutils
-          cd build-binutils
-          ../binutils-$BINUTILS_VERSION/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
-          make -j$(nproc)
-          make install
-      
-          cd $HOME/src
-          wget https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
-          tar -xvzf gcc-$GCC_VERSION.tar.gz
-          cd gcc-$GCC_VERSION
-          ./contrib/download_prerequisites
-          mkdir ../build-gcc
-          cd ../build-gcc
-          ../gcc-$GCC_VERSION/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c --without-headers
-          make -j$(nproc) all-gcc
-          make -j$(nproc) all-target-libgcc
-          make install-gcc
-          make install-target-libgcc
+        run: vendor/build_cross_compiler.sh
 
       - name: Set compiler output path
         id: set-path
-        run: echo "compiler-path=${{ github.workspace }}/opt/cross" >> "$GITHUB_OUTPUT"
+        run: echo "compiler-path=${{ github.workspace }}/vendor/cross" >> "$GITHUB_OUTPUT"
