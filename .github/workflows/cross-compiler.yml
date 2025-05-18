@@ -23,6 +23,13 @@ jobs:
         run: |
           which mkdir
           mkdir --version
+
+      - name: Cache cross compiler
+        id: cross-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/opt/cross
+          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-2.44
       
       - name: Build binutils and gcc
         if: steps.cross-cache.outputs.cache-hit != 'true'
