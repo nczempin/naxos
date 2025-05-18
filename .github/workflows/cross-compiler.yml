@@ -45,13 +45,6 @@ jobs:
             echo "found=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Cache cross compiler
-        if: steps.cross-lfs.outputs.found != 'true'
-        id: cross-cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/vendor/cross
-          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
 
       - name: Build cross compiler
         env:
@@ -64,7 +57,7 @@ jobs:
           vendor/build_cross_compiler.sh
 
       - name: Add cross compiler to repo
-        if: steps.cross-lfs.outputs.found != 'true' && steps.cross-cache.outputs.cache-hit != 'true'
+        if: steps.cross-lfs.outputs.found != 'true'
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
