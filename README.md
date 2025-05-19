@@ -15,6 +15,12 @@ export PATH="$PWD/vendor/cross/bin:$PATH"
 
 To build the toolchain yourself, execute `./vendor/build_cross_compiler.sh`.
 
+Install host dependencies with:
+
+```sh
+./setup.sh
+```
+
 ## Build and Run
 
 Compile with `make` and boot in QEMU using:
