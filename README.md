@@ -4,6 +4,13 @@
 
 naxos is a tiny x86 toy kernel for exploring operating system concepts.
 
+## Purpose & Scope
+
+This project is a learning toy kernel. It is intentionally minimal and
+incomplete, providing just enough functionality to explore operating system
+concepts. It is not meant for production use or comprehensive feature
+coverage.
+
 ## Setup
 
 The repository holds a prebuilt `i686-elf` cross compiler in Git LFS. After cloning run:
