@@ -14,31 +14,27 @@ if [ -x "$PREFIX/bin/${TARGET}-gcc" ]; then
   exit 0
 fi
 
-mkdir -p "$SCRIPT_DIR/src"
-cd "$SCRIPT_DIR/src"
+# Sources are expected to be in $SCRIPT_DIR/../toolchain_src/
+# setup.sh should have cloned them there.
 
-wget https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz
-if [ -d binutils-$BINUTILS_VERSION ]; then
-  rm -rf binutils-$BINUTILS_VERSION
-fi
-tar -xvzf binutils-$BINUTILS_VERSION.tar.gz
-mkdir build-binutils
-cd build-binutils
-../binutils-$BINUTILS_VERSION/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
+# Setup build directories
+mkdir -p "$SCRIPT_DIR/src/build-binutils"
+mkdir -p "$SCRIPT_DIR/src/build-gcc"
+
+# Build Binutils
+cd "$SCRIPT_DIR/src/build-binutils"
+"$SCRIPT_DIR/../toolchain_src/binutils/configure" --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
 make -j$(nproc)
 make install
 
-cd "$SCRIPT_DIR/src"
-wget https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz
-if [ -d gcc-$GCC_VERSION ]; then
-  rm -rf gcc-$GCC_VERSION
-fi
-tar -xvzf gcc-$GCC_VERSION.tar.gz
-cd gcc-$GCC_VERSION
+# Build GCC
+# First, run download_prerequisites from the GCC source directory
+cd "$SCRIPT_DIR/../toolchain_src/gcc"
 ./contrib/download_prerequisites
-mkdir ../build-gcc
-cd ../build-gcc
-../gcc-$GCC_VERSION/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c --without-headers
+
+# Then, configure and build GCC from its build directory
+cd "$SCRIPT_DIR/src/build-gcc"
+"$SCRIPT_DIR/../toolchain_src/gcc/configure" --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c --without-headers
 make -j$(nproc) all-gcc
 make -j$(nproc) all-target-libgcc
 make install-gcc

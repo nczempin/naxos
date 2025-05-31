@@ -4,3 +4,4 @@
 *.swp
 *.log
 !vendor/cross/
+vendor/toolchain_src/
