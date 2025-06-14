@@ -65,7 +65,9 @@ Compile with `make` and boot in QEMU using:
 make run
 ```
 
-Override the compiler prefix with `make CROSS_PREFIX=<prefix>` if needed.
+The Makefile looks for a cross compiler using the `CROSS_PREFIX` variable.
+It defaults to `i686-elf-`. Override it with `make CROSS_PREFIX=<prefix>` if
+your tools use a different prefix or reside in a custom location.
 
 ## Expected Behavior
 
