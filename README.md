@@ -47,9 +47,12 @@ The repository holds a prebuilt `i686-elf` cross compiler in Git LFS. After clon
 ```sh
 git lfs pull
 export PATH="$PWD/vendor/cross/bin:$PATH"
+i686-elf-gcc --version
 ```
 
-To build the toolchain yourself, execute `./vendor/build_cross_compiler.sh`.
+If the cross compiler is not present you can build it yourself by running
+`./vendor/build_cross_compiler.sh`. This downloads and compiles binutils and GCC
+and places the resulting toolchain under `vendor/cross`.
 
 Install host dependencies with:
 
@@ -59,11 +62,14 @@ Install host dependencies with:
 
 ## Build and Run
 
-Compile with `make` and boot in QEMU using:
+Compile the kernel and boot it in QEMU:
 
 ```sh
-make run
+make
+./start-qemu.sh
 ```
+
+You can also run both steps with `make run`.
 
 Override the compiler prefix with `make CROSS_PREFIX=<prefix>` if needed.
 
@@ -89,6 +95,8 @@ The current implementation focuses on fundamental kernel structures rather than 
 
 GitHub Actions builds the kernel and cross compiler. Tagged commits create
 release archives of both artifacts.
+The workflow in `.github/workflows/build.yml` acts as an example environment for
+running the setup and build steps automatically.
 
 ## Development Status
 
