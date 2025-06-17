@@ -20,11 +20,9 @@ jobs:
         with:
           lfs: true
 
-      - name: Verify build tools
-        run: |
-          # GitHub Actions Ubuntu runners have make pre-installed
-          # Just verify it's available
-          make --version
+      - name: Verify make is available
+        run: make --version
+
       - name: Restore cross compiler
         id: cross-cache
         uses: actions/cache@v3
@@ -35,17 +33,18 @@ jobs:
             cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-
             cross-compiler-${{ runner.os }}-
 
-      - name: Debug cross-compiler availability
+      - name: Setup build environment
         run: |
           echo "Cache hit: ${{ steps.cross-cache.outputs.cache-hit }}"
-          echo "Checking for cross-compiler at: ${{ env.COMPILER_PATH }}/bin/i686-elf-gcc"
           if [ -f "${{ env.COMPILER_PATH }}/bin/i686-elf-gcc" ]; then
-            echo "✅ Cross-compiler found"
-            ls -la ${{ env.COMPILER_PATH }}/bin/
+            echo "✅ Using cached custom cross-compiler"
+            ls -la ${{ env.COMPILER_PATH }}/bin/i686*
           else
-            echo "❌ Cross-compiler not found"
-            echo "Contents of vendor/:"
-            ls -la vendor/ || echo "vendor/ does not exist"
+            echo "⚠️  Custom cross-compiler not found in cache"
+            echo "Installing system cross-compiler as fallback..."
+            sudo apt-get update
+            sudo apt-get install -y gcc-i686-linux-gnu binutils-i686-linux-gnu
+            echo "✅ System cross-compiler installed"
           fi
 
       - name: Build kernel
