@@ -1,0 +1,144 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - 'release/*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 0.0.1)'
+        required: true
+        type: string
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            # Extract version from branch name (release/x.x.x)
+            VERSION=$(echo "${{ github.ref }}" | sed -n 's/.*release\/\(.*\)/\1/p')
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version must be in format X.Y.Z"
+            exit 1
+          fi
+
+  build-and-test:
+    needs: prepare-release
+    uses: ./.github/workflows/build.yml
+
+  create-release:
+    needs: [prepare-release, build-and-test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: naxos-bin
+          path: ./artifacts
+
+      - name: Create and push tag
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          git push origin "v$VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          echo "## What's Changed" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          
+          # Get commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            echo "This is the first release!" >> RELEASE_NOTES.md
+            git log --pretty=format:"* %s (%h)" >> RELEASE_NOTES.md
+          else
+            git log ${LAST_TAG}..HEAD --pretty=format:"* %s (%h)" >> RELEASE_NOTES.md
+          fi
+          
+          echo "" >> RELEASE_NOTES.md
+          echo "## Contributors" >> RELEASE_NOTES.md
+          if [ -z "$LAST_TAG" ]; then
+            git log --pretty=format:"* @%an" | sort -u >> RELEASE_NOTES.md
+          else
+            git log ${LAST_TAG}..HEAD --pretty=format:"* @%an" | sort -u >> RELEASE_NOTES.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.prepare-release.outputs.version }}
+          name: naxos v${{ needs.prepare-release.outputs.version }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            artifacts/naxos.bin
+          draft: false
+          prerelease: false
+
+      - name: Merge to main
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          git checkout main
+          git merge --no-ff "release/$VERSION" -m "Merge release/$VERSION into main"
+          git push origin main
+
+      - name: Merge to dev
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          git checkout dev
+          git merge --no-ff "release/$VERSION" -m "Merge release/$VERSION into dev"
+          git push origin dev
+
+      - name: Delete release branch
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          git push origin --delete "release/$VERSION"
+
+      - name: Create PR for next development
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: bump-version-after-${{ needs.prepare-release.outputs.version }}
+          title: "chore: bump version after v${{ needs.prepare-release.outputs.version }} release"
+          body: |
+            This PR updates the project for the next development cycle after releasing v${{ needs.prepare-release.outputs.version }}.
+            
+            Please update any version references in the code if needed.
+          commit-message: "chore: prepare for next development cycle"
+          base: dev
