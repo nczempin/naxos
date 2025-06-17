@@ -13,7 +13,7 @@ jobs:
     env:
       GCC_VERSION: "14.1.0"
       BINUTILS_VERSION: "2.44"
-      COMPILER_PATH: ${{ needs.cross-compiler.outputs.compiler-path }}
+      COMPILER_PATH: ${{ github.workspace }}/vendor/cross
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -41,6 +41,7 @@ jobs:
       - name: Build kernel
         env:
           PATH: ${{ env.COMPILER_PATH }}/bin:/usr/local/bin:/usr/bin:/bin
+          CROSS_PREFIX: ${{ env.COMPILER_PATH }}/bin/i686-elf-
         run: make
 
       - name: Upload kernel

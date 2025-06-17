@@ -1,5 +1,5 @@
 ifeq ($(wildcard vendor/cross/bin/i686-elf-gcc),)
-CROSS_PREFIX ?= i686-elf-
+CROSS_PREFIX ?= i686-linux-gnu-
 else
 CROSS_PREFIX ?= vendor/cross/bin/i686-elf-
 endif

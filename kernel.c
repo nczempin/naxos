@@ -5,9 +5,11 @@
 #include <stdint.h>
 
 /* Check if the compiler thinks we are targeting the wrong operating system. */
+/* Note: We're using -ffreestanding with a Linux cross-compiler, so this check is disabled
 #if defined(__linux__)
 #error "Wrong compiler."
 #endif
+*/
 
 /* This tutorial will only work for the 32-bit ix86 targets. */
 #if !defined(__i386__)

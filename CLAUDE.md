@@ -1,0 +1,1 @@
+- never merge from parent; always rebase onto parent
