@@ -5,7 +5,8 @@ CROSS_PREFIX ?= vendor/cross/bin/i686-elf-
 endif
 CC := $(CROSS_PREFIX)gcc
 AS := $(CROSS_PREFIX)as
-CFLAGS=-I.
+CFLAGS=-I. -fno-pie -no-pie
+ASFLAGS=--noexecstack
 
 BIN=naxos.bin
 SRC=$(wildcard *.c)
@@ -19,11 +20,11 @@ OBJ=$(GAS_OBJ) $(NASM_OBJ) $(C_OBJ)
 
 
 $(BIN): $(OBJ)
-	$(CC) -T linker.ld -o $(BIN) -ffreestanding -O2 -nostdlib $^ -lgcc
+	$(CC) -T linker.ld -o $(BIN) -ffreestanding -O2 -nostdlib $(CFLAGS) $^ -lgcc
 %.o: %.c
-	$(CC) -o $@ -c $^ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	$(CC) -o $@ -c $^ -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(CFLAGS)
 $(GAS_OBJ): $(GAS)
-	$(AS) $^ -o $@
+	$(AS) $(ASFLAGS) $^ -o $@
 $(NASM_OBJ): $(NASM)
 	nasm -f elf32 $^ -o $@
 

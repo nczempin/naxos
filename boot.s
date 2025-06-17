@@ -5,6 +5,9 @@
 .set MAGIC,    0x1BADB002       # 'magic number' lets bootloader find the header
 .set CHECKSUM, -(MAGIC + FLAGS) # checksum of above, to prove we are multiboot
 
+# Mark the stack as non-executable
+.section .note.GNU-stack,"",%progbits
+
 # Declare a header as in the Multiboot Standard. We put this into a special
 # section so we can force the header to be in the start of the final program.
 # You don't need to understand all these details as it is just magic values that
