@@ -47,16 +47,6 @@ jobs:
             cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-
             cross-compiler-${{ runner.os }}-
 
-      - name: Cache source tarballs
-        uses: actions/cache@v3
-        with:
-          path: |
-            vendor/binutils-*.tar.xz
-            vendor/gcc-*.tar.xz
-          key: cross-compiler-sources-gcc-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
-          restore-keys: |
-            cross-compiler-sources-
-
       - name: Build cross compiler
         if: steps.cache-cross.outputs.cache-hit != 'true'
         run: |
