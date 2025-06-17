@@ -37,20 +37,31 @@ jobs:
           which mkdir
           mkdir --version
 
-      - name: Check cross compiler in repo
-        id: cross-lfs
-        run: |
-          if [ -x "$GITHUB_WORKSPACE/vendor/cross/bin/i686-elf-gcc" ]; then
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "found=false" >> "$GITHUB_OUTPUT"
-          fi
-
+      - name: Cache cross compiler
+        id: cache-cross
+        uses: actions/cache@v3
+        with:
+          path: vendor/cross
+          key: cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
+          restore-keys: |
+            cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-
+            cross-compiler-${{ runner.os }}-
 
       - name: Build cross compiler
+        if: steps.cache-cross.outputs.cache-hit != 'true'
         run: |
           chmod +x scripts/build-cross-compiler.sh
           ./scripts/build-cross-compiler.sh
+
+      - name: Verify cross compiler
+        run: |
+          if [ -x "vendor/cross/bin/i686-elf-gcc" ]; then
+            echo "✅ Cross-compiler available"
+            vendor/cross/bin/i686-elf-gcc --version | head -n 1
+          else
+            echo "❌ Cross-compiler not found" >&2
+            exit 1
+          fi
 
       #- name: Add cross compiler to repo
        # if: steps.cross-lfs.outputs.found != 'true'

@@ -36,7 +36,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.COMPILER_PATH }}
-          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
+          key: cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
+          restore-keys: |
+            cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-
+            cross-compiler-${{ runner.os }}-
 
       - name: Build kernel
         env:
