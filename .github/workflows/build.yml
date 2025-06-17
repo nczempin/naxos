@@ -44,8 +44,11 @@ jobs:
       - name: Build kernel
         env:
           PATH: ${{ env.COMPILER_PATH }}/bin:/usr/local/bin:/usr/bin:/bin
-          CROSS_PREFIX: ${{ env.COMPILER_PATH }}/bin/i686-elf-
-        run: make
+        run: |
+          # The Makefile will automatically detect the cross-compiler
+          # If vendor/cross/bin/i686-elf-gcc exists, it uses that
+          # Otherwise it falls back to system i686-linux-gnu-gcc
+          make
 
       - name: Upload kernel
         uses: actions/upload-artifact@v4
