@@ -41,6 +41,19 @@ jobs:
             cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-
             cross-compiler-${{ runner.os }}-
 
+      - name: Debug cross-compiler availability
+        run: |
+          echo "Cache hit: ${{ steps.cross-cache.outputs.cache-hit }}"
+          echo "Checking for cross-compiler at: ${{ env.COMPILER_PATH }}/bin/i686-elf-gcc"
+          if [ -f "${{ env.COMPILER_PATH }}/bin/i686-elf-gcc" ]; then
+            echo "✅ Cross-compiler found"
+            ls -la ${{ env.COMPILER_PATH }}/bin/
+          else
+            echo "❌ Cross-compiler not found"
+            echo "Contents of vendor/:"
+            ls -la vendor/ || echo "vendor/ does not exist"
+          fi
+
       - name: Build kernel
         env:
           PATH: ${{ env.COMPILER_PATH }}/bin:/usr/local/bin:/usr/bin:/bin
