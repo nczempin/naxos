@@ -11,37 +11,50 @@ jobs:
     needs: cross-compiler
     runs-on: ubuntu-latest
     env:
-      GCC_VERSION: "14.1.0"
-      BINUTILS_VERSION: "2.44"
-      COMPILER_PATH: ${{ needs.cross-compiler.outputs.compiler-path }}
+      GCC_VERSION: "12.2.0"
+      BINUTILS_VERSION: "2.40"
+      COMPILER_PATH: ${{ github.workspace }}/vendor/cross
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           lfs: true
 
-      - name: Install build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential
-          make --version || { echo "Make was not installed successfully"; exit 1; }
+      - name: Verify make is available
+        run: make --version
 
-      - name: Debug PATH and make
-        run: |
-          echo "PATH=$PATH"
-          which make
-          make --version
       - name: Restore cross compiler
         id: cross-cache
         uses: actions/cache@v3
         with:
           path: ${{ env.COMPILER_PATH }}
-          key: ${{ runner.os }}-cross-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
+          key: cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-binutils-${{ env.BINUTILS_VERSION }}
+          restore-keys: |
+            cross-compiler-${{ runner.os }}-gcc-${{ env.GCC_VERSION }}-
+            cross-compiler-${{ runner.os }}-
+
+      - name: Setup build environment
+        run: |
+          echo "Cache hit: ${{ steps.cross-cache.outputs.cache-hit }}"
+          if [ -f "${{ env.COMPILER_PATH }}/bin/i686-elf-gcc" ]; then
+            echo "✅ Using cached custom cross-compiler"
+            ls -la ${{ env.COMPILER_PATH }}/bin/i686*
+          else
+            echo "⚠️  Custom cross-compiler not found in cache"
+            echo "Installing system cross-compiler as fallback..."
+            sudo apt-get update
+            sudo apt-get install -y gcc-i686-linux-gnu binutils-i686-linux-gnu
+            echo "✅ System cross-compiler installed"
+          fi
 
       - name: Build kernel
         env:
           PATH: ${{ env.COMPILER_PATH }}/bin:/usr/local/bin:/usr/bin:/bin
-        run: make
+        run: |
+          # The Makefile will automatically detect the cross-compiler
+          # If vendor/cross/bin/i686-elf-gcc exists, it uses that
+          # Otherwise it falls back to system i686-linux-gnu-gcc
+          make
 
       - name: Upload kernel
         uses: actions/upload-artifact@v4
