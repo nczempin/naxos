@@ -10,7 +10,10 @@ sudo apt-get install -y \
     build-essential \
     gcc-i686-linux-gnu \
     binutils-i686-linux-gnu \
-    qemu-system-x86
+    qemu-system-x86 \
+    grub-common \
+    grub-pc-bin \
+    xorriso
 
 # Verify installations
 for cmd in g++ make cppcheck i686-linux-gnu-gcc qemu-system-i386; do
