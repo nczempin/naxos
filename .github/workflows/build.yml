@@ -11,8 +11,8 @@ jobs:
     needs: cross-compiler
     runs-on: ubuntu-latest
     env:
-      GCC_VERSION: "14.1.0"
-      BINUTILS_VERSION: "2.44"
+      GCC_VERSION: "12.2.0"
+      BINUTILS_VERSION: "2.40"
       COMPILER_PATH: ${{ github.workspace }}/vendor/cross
     steps:
       - name: Checkout repository

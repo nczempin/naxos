@@ -17,8 +17,8 @@ jobs:
     outputs:
       compiler-path: ${{ steps.resolve-path.outputs.compiler-path }}
     env:
-      GCC_VERSION: "14.1.0"
-      BINUTILS_VERSION: "2.44"
+      GCC_VERSION: "12.2.0"
+      BINUTILS_VERSION: "2.40"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -48,14 +48,9 @@ jobs:
 
 
       - name: Build cross compiler
-        env:
-          BINUTILS_VERSION: "${{ env.BINUTILS_VERSION }}"
-          GCC_VERSION: "${{ env.GCC_VERSION }}"
-          PREFIX: "${{ github.workspace }}/vendor/cross"
-          TARGET: "i686-elf"
         run: |
-          chmod +x vendor/build_cross_compiler.sh
-          vendor/build_cross_compiler.sh
+          chmod +x scripts/build-cross-compiler.sh
+          ./scripts/build-cross-compiler.sh
 
       #- name: Add cross compiler to repo
        # if: steps.cross-lfs.outputs.found != 'true'
