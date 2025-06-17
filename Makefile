@@ -9,18 +9,17 @@ CFLAGS=-I. -fno-pie -no-pie
 ASFLAGS=--noexecstack
 
 BIN=naxos.bin
-SRC=$(wildcard *.c)
-GAS=$(wildcard *.s)
-NASM=$(wildcard *.asm)
+# Use only the bare bones files for now
+SRC=kernel.c
+GAS=boot.s
 C_OBJ=$(SRC:.c=.o)
 GAS_OBJ=$(GAS:.s=.o)
-NASM_OBJ=$(NASM:.asm=.o)
 
-OBJ=$(GAS_OBJ) $(NASM_OBJ) $(C_OBJ)
+OBJ=$(GAS_OBJ) $(C_OBJ)
 
 
-$(BIN): $(OBJ)
-	$(CC) -T linker.ld -o $(BIN) -ffreestanding -O2 -nostdlib $(CFLAGS) $^ -lgcc
+$(BIN): boot.o kernel.o
+	$(CC) -T linker.ld -o $(BIN) -ffreestanding -O2 -nostdlib $(CFLAGS) -Wl,--build-id=none $^ -lgcc
 %.o: %.c
 	$(CC) -o $@ -c $^ -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(CFLAGS)
 $(GAS_OBJ): $(GAS)
