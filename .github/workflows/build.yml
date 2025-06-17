@@ -20,16 +20,10 @@ jobs:
         with:
           lfs: true
 
-      - name: Install build tools
+      - name: Verify build tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential gcc-i686-linux-gnu binutils-i686-linux-gnu
-          make --version || { echo "Make was not installed successfully"; exit 1; }
-
-      - name: Debug PATH and make
-        run: |
-          echo "PATH=$PATH"
-          which make
+          # GitHub Actions Ubuntu runners have make pre-installed
+          # Just verify it's available
           make --version
       - name: Restore cross compiler
         id: cross-cache
