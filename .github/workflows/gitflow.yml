@@ -1,0 +1,144 @@
+name: Git Flow
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Git Flow action'
+        required: true
+        type: choice
+        options:
+          - start-release
+          - finish-release
+          - start-hotfix
+          - finish-hotfix
+      version:
+        description: 'Version number (e.g., 0.0.1)'
+        required: true
+        type: string
+
+jobs:
+  gitflow:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Start Release
+        if: github.event.inputs.action == 'start-release'
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          
+          # Validate version format
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version must be in format X.Y.Z"
+            exit 1
+          fi
+          
+          # Create release branch from dev
+          git checkout dev
+          git pull origin dev
+          git checkout -b "release/$VERSION"
+          
+          # Push release branch
+          git push -u origin "release/$VERSION"
+          
+          echo "✅ Created release branch: release/$VERSION"
+          echo "Next steps:"
+          echo "1. Make any final adjustments on the release branch"
+          echo "2. Run 'finish-release' action when ready"
+
+      - name: Finish Release
+        if: github.event.inputs.action == 'finish-release'
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          
+          # Checkout release branch
+          git checkout "release/$VERSION"
+          git pull origin "release/$VERSION"
+          
+          # Tag the release
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          git push origin "v$VERSION"
+          
+          # Merge to main
+          git checkout main
+          git pull origin main
+          git merge --no-ff "release/$VERSION" -m "Merge release/$VERSION into main"
+          git push origin main
+          
+          # Merge back to dev
+          git checkout dev
+          git pull origin dev
+          git merge --no-ff "release/$VERSION" -m "Merge release/$VERSION back into dev"
+          git push origin dev
+          
+          # Delete release branch
+          git push origin --delete "release/$VERSION"
+          
+          echo "✅ Release $VERSION completed successfully!"
+
+      - name: Start Hotfix
+        if: github.event.inputs.action == 'start-hotfix'
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          
+          # Validate version format
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version must be in format X.Y.Z"
+            exit 1
+          fi
+          
+          # Create hotfix branch from main
+          git checkout main
+          git pull origin main
+          git checkout -b "hotfix/$VERSION"
+          
+          # Push hotfix branch
+          git push -u origin "hotfix/$VERSION"
+          
+          echo "✅ Created hotfix branch: hotfix/$VERSION"
+          echo "Next steps:"
+          echo "1. Apply the hotfix on this branch"
+          echo "2. Run 'finish-hotfix' action when ready"
+
+      - name: Finish Hotfix
+        if: github.event.inputs.action == 'finish-hotfix'
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          
+          # Checkout hotfix branch
+          git checkout "hotfix/$VERSION"
+          git pull origin "hotfix/$VERSION"
+          
+          # Tag the hotfix
+          git tag -a "v$VERSION" -m "Hotfix version $VERSION"
+          git push origin "v$VERSION"
+          
+          # Merge to main
+          git checkout main
+          git pull origin main
+          git merge --no-ff "hotfix/$VERSION" -m "Merge hotfix/$VERSION into main"
+          git push origin main
+          
+          # Merge to dev
+          git checkout dev
+          git pull origin dev
+          git merge --no-ff "hotfix/$VERSION" -m "Merge hotfix/$VERSION into dev"
+          git push origin dev
+          
+          # Delete hotfix branch
+          git push origin --delete "hotfix/$VERSION"
+          
+          echo "✅ Hotfix $VERSION completed successfully!"
