@@ -66,6 +66,13 @@ jobs:
           name: naxos-bin
           path: naxos.bin
 
+      - name: Download cross-compiler artifact
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v4
+        with:
+          name: cross-compiler
+          path: ./
+
       - name: Prepare release package
         if: startsWith(github.ref, 'refs/tags/')
         run: |
@@ -97,6 +104,7 @@ jobs:
         with:
           files: |
             naxos-*.zip
+            cross.tar.gz
           body: |
             ## Features
             - VGA text mode output
