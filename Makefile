@@ -35,5 +35,5 @@ run: $(BIN)
 	if [ -x ./start-qemu.sh ]; then \
 		./start-qemu.sh; \
 	else \
-		qemu-system-i386 -cpu pentium3 --serial file:serial.log -kernel $(BIN); \
+		qemu-system-i386 -machine pc-i440fx-3.1 -cpu pentium3 --serial file:serial.log -kernel $(BIN); \
 	fi
