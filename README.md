@@ -1,6 +1,6 @@
 # naxos
 
-[![Build](https://github.com/nczempin/naxos/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/nczempin/naxos/actions/workflows/build.yml)
+[![Build](https://github.com/nczempin/naxos/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/nczempin/naxos/actions/workflows/build.yml)
 
 ## What Problem Does This Solve?
 naxos is a tiny x86 toy kernel for exploring operating system concepts. It provides a minimal, hands-on environment for learning about kernel development, memory management, and low-level system programming without the complexity of a full operating system.
