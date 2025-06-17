@@ -25,32 +25,43 @@ if [[ -f "$PREFIX/bin/$TARGET-gcc" && -f "$PREFIX/bin/$TARGET-as" ]]; then
     exit 0
 fi
 
-echo "📦 Downloading source packages..."
+echo "📦 Preparing source packages..."
 
-# Download binutils
-if [[ ! -f "binutils-$BINUTILS_VERSION.tar.xz" ]]; then
-    echo "Downloading binutils $BINUTILS_VERSION..."
-    wget -q --show-progress "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz"
-fi
+# Option 1: Use git sources if available
+if [[ -d "sources/binutils-gdb" && -d "sources/gcc" ]]; then
+    echo "Using git sources..."
+    BINUTILS_SRC="sources/binutils-gdb"
+    GCC_SRC="sources/gcc"
+# Option 2: Download tarballs as fallback
+else
+    # Download binutils
+    if [[ ! -f "binutils-$BINUTILS_VERSION.tar.xz" ]]; then
+        echo "Downloading binutils $BINUTILS_VERSION..."
+        wget -q --show-progress "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.xz"
+    fi
 
-# Download GCC
-if [[ ! -f "gcc-$GCC_VERSION.tar.xz" ]]; then
-    echo "Downloading GCC $GCC_VERSION..."
-    wget -q --show-progress "https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz"
-fi
+    # Download GCC
+    if [[ ! -f "gcc-$GCC_VERSION.tar.xz" ]]; then
+        echo "Downloading GCC $GCC_VERSION..."
+        wget -q --show-progress "https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz"
+    fi
 
-echo "📦 Extracting source packages..."
+    echo "📦 Extracting source packages..."
 
-# Extract binutils
-if [[ ! -d "binutils-$BINUTILS_VERSION" ]]; then
-    echo "Extracting binutils..."
-    tar -xf "binutils-$BINUTILS_VERSION.tar.xz"
-fi
+    # Extract binutils
+    if [[ ! -d "binutils-$BINUTILS_VERSION" ]]; then
+        echo "Extracting binutils..."
+        tar -xf "binutils-$BINUTILS_VERSION.tar.xz"
+    fi
 
-# Extract GCC
-if [[ ! -d "gcc-$GCC_VERSION" ]]; then
-    echo "Extracting GCC..."
-    tar -xf "gcc-$GCC_VERSION.tar.xz"
+    # Extract GCC
+    if [[ ! -d "gcc-$GCC_VERSION" ]]; then
+        echo "Extracting GCC..."
+        tar -xf "gcc-$GCC_VERSION.tar.xz"
+    fi
+    
+    BINUTILS_SRC="binutils-$BINUTILS_VERSION"
+    GCC_SRC="gcc-$GCC_VERSION"
 fi
 
 echo "🔨 Building binutils $BINUTILS_VERSION..."
@@ -59,7 +70,7 @@ if [[ ! -f "$PREFIX/bin/$TARGET-as" ]]; then
     mkdir build-binutils
     cd build-binutils
     
-    ../binutils-$BINUTILS_VERSION/configure \
+    ../$BINUTILS_SRC/configure \
         --target=$TARGET \
         --prefix="$PREFIX" \
         --with-sysroot \
@@ -80,7 +91,7 @@ if [[ ! -f "$PREFIX/bin/$TARGET-gcc" ]]; then
     mkdir build-gcc
     cd build-gcc
     
-    ../gcc-$GCC_VERSION/configure \
+    ../$GCC_SRC/configure \
         --target=$TARGET \
         --prefix="$PREFIX" \
         --disable-nls \

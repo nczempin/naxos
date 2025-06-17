@@ -3,4 +3,10 @@
 *.bin
 *.swp
 *.log
-!vendor/cross/
+vendor/cross/
+vendor/binutils-*.tar.xz
+vendor/gcc-*.tar.xz
+vendor/binutils-*/
+vendor/gcc-*/
+vendor/build-*/
+vendor/sources/
