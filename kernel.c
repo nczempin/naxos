@@ -4,12 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
  
-/* Check if the compiler thinks we are targeting the wrong operating system. */
-/* Note: We're using -ffreestanding with a Linux cross-compiler, so this check is disabled
-#if defined(__linux__)
-#error "You are not using a cross-compiler, you will most certainly run into trouble"
-#endif
-*/
+/* 
+ * OS check disabled: We use -ffreestanding with system cross-compiler (i686-linux-gnu-gcc)
+ * which defines __linux__ but correctly targets freestanding i686-elf environment.
+ */
  
 /* This tutorial will only work for the 32-bit ix86 targets. */
 #if !defined(__i386__)
