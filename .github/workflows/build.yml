@@ -14,6 +14,8 @@ jobs:
   build:
     needs: cross-compiler
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       GCC_VERSION: "12.2.0"
       BINUTILS_VERSION: "2.40"
@@ -66,9 +68,47 @@ jobs:
           name: naxos-bin
           path: naxos.bin
 
+      - name: Download cross-compiler artifact
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v4
+        with:
+          name: cross-compiler
+          path: ./
+
+      - name: Prepare release package
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          mkdir -p naxos-$VERSION
+          cp naxos.bin naxos-$VERSION/
+          cat > naxos-$VERSION/README.txt << 'EOF'
+          naxos - A simple OS kernel
+          ==========================
+          
+          RUNNING THE KERNEL
+          ------------------
+          1. Install QEMU for your platform
+          2. Run: qemu-system-i386 -kernel naxos.bin
+          3. To exit: Close the QEMU window
+          
+          FEATURES
+          --------
+          - VGA text mode display
+          - "Hello, kernel World!" message
+          
+          For more info: https://github.com/nczempin/naxos
+          EOF
+          zip -r naxos-$VERSION.zip naxos-$VERSION/
+
       - name: Create release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: naxos.bin
-          generate_release_notes: true
+          files: |
+            naxos-*.zip
+            cross.tar.gz
+          body: |
+            ## Features
+            - VGA text mode output
+            - Basic kernel initialization
+            - Multiboot compliant boot process
