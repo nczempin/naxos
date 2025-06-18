@@ -10,3 +10,4 @@ vendor/binutils-*/
 vendor/gcc-*/
 vendor/build-*/
 vendor/sources/
+build/

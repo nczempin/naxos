@@ -6,13 +6,42 @@ project(naxos
     DESCRIPTION "naxos - A multi-architecture OS kernel"
 )
 
-# Compiler detection (replicating Makefile logic)
-if(EXISTS "${CMAKE_SOURCE_DIR}/vendor/cross/bin/i686-elf-gcc")
-    set(CROSS_PREFIX "vendor/cross/bin/i686-elf-")
-    message(STATUS "Using custom cross-compiler: ${CROSS_PREFIX}")
+# Architecture detection and validation
+if(NOT DEFINED ARCH)
+    set(ARCH "x86")
+    message(STATUS "No ARCH specified, defaulting to x86")
+endif()
+
+# Validate architecture
+set(SUPPORTED_ARCHS "x86;arm;riscv;nicnac16")
+if(NOT ARCH IN_LIST SUPPORTED_ARCHS)
+    message(FATAL_ERROR "Unsupported architecture: ${ARCH}. Supported architectures: ${SUPPORTED_ARCHS}")
+endif()
+
+message(STATUS "Building for architecture: ${ARCH}")
+
+# Set architecture-specific compiler prefixes
+if(ARCH STREQUAL "x86")
+    # x86 compiler detection (replicating Makefile logic)
+    if(EXISTS "${CMAKE_SOURCE_DIR}/vendor/cross/bin/i686-elf-gcc")
+        set(CROSS_PREFIX "vendor/cross/bin/i686-elf-")
+        message(STATUS "Using custom x86 cross-compiler: ${CROSS_PREFIX}")
+    else()
+        set(CROSS_PREFIX "i686-linux-gnu-")
+        message(STATUS "Using system x86 cross-compiler: ${CROSS_PREFIX}")
+    endif()
+elseif(ARCH STREQUAL "arm")
+    set(CROSS_PREFIX "arm-none-eabi-")
+    message(STATUS "Using ARM cross-compiler: ${CROSS_PREFIX}")
+elseif(ARCH STREQUAL "riscv")
+    set(CROSS_PREFIX "riscv64-unknown-elf-")
+    message(STATUS "Using RISC-V cross-compiler: ${CROSS_PREFIX}")
+elseif(ARCH STREQUAL "nicnac16")
+    # NICNAC16 will need custom toolchain - placeholder for now
+    message(WARNING "NICNAC16 toolchain not yet implemented")
+    set(CROSS_PREFIX "nicnac16-")
 else()
-    set(CROSS_PREFIX "i686-linux-gnu-")
-    message(STATUS "Using system cross-compiler: ${CROSS_PREFIX}")
+    message(FATAL_ERROR "Architecture ${ARCH} not implemented")
 endif()
 
 # Set compilers
